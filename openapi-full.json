@@ -3,7 +3,7 @@
     "info": {
         "title": "nextcloudpresence-full",
         "version": "0.0.1",
-        "description": "Show person presence in nexrcloud from home assistant person location trackers",
+        "description": "Show person presence in Nextcloud from Home Assistant person location trackers",
         "license": {
             "name": "AGPL-3.0-or-later"
         }
