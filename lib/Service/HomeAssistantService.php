@@ -73,7 +73,7 @@ class HomeAssistantService {
 			]);
 
 			if ($response->getStatusCode() === 200) {
-				$data = json_decode($response->getBody(), true);
+				json_decode($response->getBody(), true);
 				return [
 					'success' => true,
 					'message' => 'Successfully connected to Home Assistant',
