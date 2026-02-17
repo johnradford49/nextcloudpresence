@@ -9,7 +9,6 @@ use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 
 class HomeAssistantService {
-	private const CACHE_TTL = 30; // 30 seconds cache
 	private array $cache = [];
 
 	public function __construct(
@@ -17,6 +16,33 @@ class HomeAssistantService {
 		private IConfig $config,
 		private LoggerInterface $logger,
 	) {
+	}
+
+	/**
+	 * Get the cache TTL from configuration
+	 *
+	 * @return int Cache TTL in seconds
+	 */
+	private function getCacheTTL(): int {
+		return (int)$this->config->getAppValue('nextcloudpresence', 'ha_polling_interval', '30');
+	}
+
+	/**
+	 * Get the connection timeout from configuration
+	 *
+	 * @return int Connection timeout in seconds
+	 */
+	private function getConnectionTimeout(): int {
+		return (int)$this->config->getAppValue('nextcloudpresence', 'ha_connection_timeout', '10');
+	}
+
+	/**
+	 * Get SSL verification setting from configuration
+	 *
+	 * @return bool Whether to verify SSL certificates
+	 */
+	private function getVerifySSL(): bool {
+		return $this->config->getAppValue('nextcloudpresence', 'ha_verify_ssl', '1') === '1';
 	}
 
 	/**
@@ -42,7 +68,8 @@ class HomeAssistantService {
 					'Authorization' => 'Bearer ' . $token,
 					'Content-Type' => 'application/json',
 				],
-				'timeout' => 10,
+				'timeout' => $this->getConnectionTimeout(),
+				'verify' => $this->getVerifySSL(),
 			]);
 
 			if ($response->getStatusCode() === 200) {
@@ -86,8 +113,9 @@ class HomeAssistantService {
 
 		// Check cache
 		$cacheKey = 'person_presence';
+		$cacheTTL = $this->getCacheTTL();
 		if (isset($this->cache[$cacheKey])
-			&& time() - $this->cache[$cacheKey]['timestamp'] < self::CACHE_TTL) {
+			&& time() - $this->cache[$cacheKey]['timestamp'] < $cacheTTL) {
 			return $this->cache[$cacheKey]['data'];
 		}
 
@@ -98,7 +126,8 @@ class HomeAssistantService {
 					'Authorization' => 'Bearer ' . $token,
 					'Content-Type' => 'application/json',
 				],
-				'timeout' => 10,
+				'timeout' => $this->getConnectionTimeout(),
+				'verify' => $this->getVerifySSL(),
 			]);
 
 			if ($response->getStatusCode() !== 200) {
