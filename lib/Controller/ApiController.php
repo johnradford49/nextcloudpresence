@@ -28,7 +28,7 @@ class ApiController extends OCSController {
 	/**
 	 * Get person presence data from Home Assistant
 	 *
-	 * @return DataResponse<Http::STATUS_OK, array, array{}>|DataResponse<Http::STATUS_INTERNAL_SERVER_ERROR, array{error: string}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, list<array{entity_id: string, name: string, state: string, last_changed: string|null}>, array{}>|DataResponse<Http::STATUS_INTERNAL_SERVER_ERROR, array{error: string}, array{}>
 	 *
 	 * 200: Presence data returned
 	 * 500: Error occurred
@@ -65,6 +65,8 @@ class ApiController extends OCSController {
 	/**
 	 * Save Home Assistant settings
 	 *
+	 * @param string $url Home Assistant URL
+	 * @param string $token Home Assistant long-lived access token
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Settings saved
