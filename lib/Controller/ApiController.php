@@ -80,7 +80,7 @@ class ApiController extends OCSController {
 		string $token,
 		int $polling_interval = 30,
 		int $connection_timeout = 10,
-		bool $verify_ssl = true
+		bool $verify_ssl = true,
 	): DataResponse {
 		// Remove trailing slashes from URL
 		$url = rtrim($url, '/');
