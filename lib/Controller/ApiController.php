@@ -67,17 +67,41 @@ class ApiController extends OCSController {
 	 *
 	 * @param string $url Home Assistant URL
 	 * @param string $token Home Assistant long-lived access token
+	 * @param int $polling_interval Polling interval in seconds
+	 * @param int $connection_timeout Connection timeout in seconds
+	 * @param bool $verify_ssl Whether to verify SSL certificates
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Settings saved
 	 */
 	#[ApiRoute(verb: 'POST', url: '/settings')]
-	public function saveSettings(string $url, string $token): DataResponse {
+	public function saveSettings(
+		string $url,
+		string $token,
+		int $polling_interval = 30,
+		int $connection_timeout = 10,
+		bool $verify_ssl = true
+	): DataResponse {
 		// Remove trailing slashes from URL
 		$url = rtrim($url, '/');
 
+		// Validate polling interval (minimum 10 seconds)
+		if ($polling_interval < 10) {
+			$polling_interval = 10;
+		}
+
+		// Validate connection timeout (minimum 5 seconds, maximum 60 seconds)
+		if ($connection_timeout < 5) {
+			$connection_timeout = 5;
+		} elseif ($connection_timeout > 60) {
+			$connection_timeout = 60;
+		}
+
 		$this->config->setAppValue('nextcloudpresence', 'ha_url', $url);
 		$this->config->setAppValue('nextcloudpresence', 'ha_token', $token);
+		$this->config->setAppValue('nextcloudpresence', 'ha_polling_interval', (string)$polling_interval);
+		$this->config->setAppValue('nextcloudpresence', 'ha_connection_timeout', (string)$connection_timeout);
+		$this->config->setAppValue('nextcloudpresence', 'ha_verify_ssl', $verify_ssl ? '1' : '0');
 
 		return new DataResponse(['success' => true]);
 	}
@@ -85,7 +109,7 @@ class ApiController extends OCSController {
 	/**
 	 * Get Home Assistant settings
 	 *
-	 * @return DataResponse<Http::STATUS_OK, array{url: string, token: string}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array{url: string, token: string, polling_interval: string, connection_timeout: string, verify_ssl: bool}, array{}>
 	 *
 	 * 200: Settings returned
 	 */
@@ -94,6 +118,9 @@ class ApiController extends OCSController {
 		return new DataResponse([
 			'url' => $this->config->getAppValue('nextcloudpresence', 'ha_url', ''),
 			'token' => $this->config->getAppValue('nextcloudpresence', 'ha_token', ''),
+			'polling_interval' => $this->config->getAppValue('nextcloudpresence', 'ha_polling_interval', '30'),
+			'connection_timeout' => $this->config->getAppValue('nextcloudpresence', 'ha_connection_timeout', '10'),
+			'verify_ssl' => $this->config->getAppValue('nextcloudpresence', 'ha_verify_ssl', '1') === '1',
 		]);
 	}
 }

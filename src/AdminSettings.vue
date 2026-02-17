@@ -3,12 +3,16 @@ import { ref, onMounted } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
+import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
 
 const haUrl = ref('')
 const haToken = ref('')
+const pollingInterval = ref('30')
+const connectionTimeout = ref('10')
+const verifySSL = ref(true)
 const testing = ref(false)
 const saving = ref(false)
 const testResult = ref<{ success: boolean; message: string } | null>(null)
@@ -18,6 +22,9 @@ const loadSettings = async () => {
 		const response = await axios.get(generateUrl('/apps/nextcloudpresence/api/settings'))
 		haUrl.value = response.data.url || ''
 		haToken.value = response.data.token || ''
+		pollingInterval.value = response.data.polling_interval || '30'
+		connectionTimeout.value = response.data.connection_timeout || '10'
+		verifySSL.value = response.data.verify_ssl !== false
 	} catch (e) {
 		showError('Failed to load settings')
 	}
@@ -31,6 +38,9 @@ const saveSettings = async () => {
 		await axios.post(generateUrl('/apps/nextcloudpresence/api/settings'), {
 			url: haUrl.value,
 			token: haToken.value,
+			polling_interval: pollingInterval.value,
+			connection_timeout: connectionTimeout.value,
+			verify_ssl: verifySSL.value,
 		})
 		showSuccess('Settings saved successfully')
 	} catch (e) {
@@ -103,6 +113,33 @@ onMounted(() => {
 				placeholder="Enter your Home Assistant token"
 				:helper-text="'Your Home Assistant access token'" />
 
+			<div class="advanced-settings">
+				<h3>Connection Options</h3>
+
+				<NcTextField
+					:value.sync="pollingInterval"
+					label="Polling Interval (seconds)"
+					type="number"
+					placeholder="30"
+					:helper-text="'How often to refresh presence data (minimum: 10 seconds)'" />
+
+				<NcTextField
+					:value.sync="connectionTimeout"
+					label="Connection Timeout (seconds)"
+					type="number"
+					placeholder="10"
+					:helper-text="'Maximum time to wait for Home Assistant to respond'" />
+
+				<NcCheckboxRadioSwitch
+					:checked.sync="verifySSL"
+					type="switch">
+					Verify SSL Certificate
+				</NcCheckboxRadioSwitch>
+				<p class="settings-hint ssl-hint">
+					Disable only if using self-signed certificates
+				</p>
+			</div>
+
 			<div class="button-group">
 				<NcButton
 					type="primary"
@@ -141,6 +178,24 @@ onMounted(() => {
 	flex-direction: column;
 	gap: 20px;
 	margin-top: 20px;
+}
+
+.advanced-settings {
+	margin-top: 30px;
+	padding-top: 20px;
+	border-top: 1px solid var(--color-border);
+}
+
+.advanced-settings h3 {
+	margin-bottom: 15px;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.ssl-hint {
+	margin-top: -10px;
+	margin-left: 40px;
+	font-size: 13px;
 }
 
 .button-group {
