@@ -10,8 +10,8 @@ import { showSuccess, showError } from '@nextcloud/dialogs'
 
 const haUrl = ref('')
 const haToken = ref('')
-const pollingInterval = ref('30')
-const connectionTimeout = ref('10')
+const pollingInterval = ref(30)
+const connectionTimeout = ref(10)
 const verifySSL = ref(true)
 const testing = ref(false)
 const saving = ref(false)
@@ -22,8 +22,8 @@ const loadSettings = async () => {
 		const response = await axios.get(generateUrl('/apps/nextcloudpresence/api/settings'))
 		haUrl.value = response.data.url || ''
 		haToken.value = response.data.token || ''
-		pollingInterval.value = response.data.polling_interval || '30'
-		connectionTimeout.value = response.data.connection_timeout || '10'
+		pollingInterval.value = parseInt(response.data.polling_interval) || 30
+		connectionTimeout.value = parseInt(response.data.connection_timeout) || 10
 		verifySSL.value = response.data.verify_ssl !== false
 	} catch (e) {
 		showError('Failed to load settings')
@@ -132,10 +132,11 @@ onMounted(() => {
 
 				<NcCheckboxRadioSwitch
 					v-model="verifySSL"
+					aria-describedby="ssl-hint"
 					type="switch">
 					Verify SSL Certificate
 				</NcCheckboxRadioSwitch>
-				<p class="settings-hint ssl-hint">
+				<p id="ssl-hint" class="settings-hint ssl-hint">
 					Disable only if using self-signed certificates
 				</p>
 			</div>
