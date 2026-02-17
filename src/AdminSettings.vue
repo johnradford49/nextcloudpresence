@@ -101,13 +101,13 @@ onMounted(() => {
 
 		<div class="settings-form">
 			<NcTextField
-				:value.sync="haUrl"
+				v-model="haUrl"
 				label="Home Assistant URL"
 				placeholder="http://homeassistant.local:8123"
 				:helper-text="'The full URL to your Home Assistant instance'" />
 
 			<NcTextField
-				:value.sync="haToken"
+				v-model="haToken"
 				label="Long-Lived Access Token"
 				type="password"
 				placeholder="Enter your Home Assistant token"
@@ -117,21 +117,21 @@ onMounted(() => {
 				<h3>Connection Options</h3>
 
 				<NcTextField
-					:value.sync="pollingInterval"
+					v-model="pollingInterval"
 					label="Polling Interval (seconds)"
 					type="number"
 					placeholder="30"
 					:helper-text="'How often to refresh presence data (minimum: 10 seconds)'" />
 
 				<NcTextField
-					:value.sync="connectionTimeout"
+					v-model="connectionTimeout"
 					label="Connection Timeout (seconds)"
 					type="number"
 					placeholder="10"
 					:helper-text="'Maximum time to wait for Home Assistant to respond'" />
 
 				<NcCheckboxRadioSwitch
-					:checked.sync="verifySSL"
+					v-model="verifySSL"
 					type="switch">
 					Verify SSL Certificate
 				</NcCheckboxRadioSwitch>
