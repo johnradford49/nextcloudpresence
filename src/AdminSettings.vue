@@ -26,7 +26,7 @@ const loadSettings = async () => {
 const saveSettings = async () => {
 	saving.value = true
 	testResult.value = null
-	
+
 	try {
 		await axios.post(generateUrl('/apps/nextcloudpresence/api/settings'), {
 			url: haUrl.value,
@@ -43,11 +43,11 @@ const saveSettings = async () => {
 const testConnection = async () => {
 	testing.value = true
 	testResult.value = null
-	
+
 	try {
 		const response = await axios.get(generateUrl('/apps/nextcloudpresence/api/test-connection'))
 		testResult.value = response.data
-		
+
 		if (response.data.success) {
 			showSuccess('Connection successful!')
 		} else {
@@ -56,7 +56,7 @@ const testConnection = async () => {
 	} catch (e: any) {
 		testResult.value = {
 			success: false,
-			message: e.response?.data?.message || 'Failed to test connection'
+			message: e.response?.data?.message || 'Failed to test connection',
 		}
 		showError('Connection test failed')
 	} finally {
@@ -75,7 +75,7 @@ onMounted(() => {
 		<p class="settings-hint">
 			Configure your Home Assistant connection to fetch person presence data.
 		</p>
-		
+
 		<NcNoteCard type="info">
 			<p>
 				To get a Long-Lived Access Token from Home Assistant:
@@ -88,23 +88,21 @@ onMounted(() => {
 				</ol>
 			</p>
 		</NcNoteCard>
-		
+
 		<div class="settings-form">
 			<NcTextField
 				:value.sync="haUrl"
 				label="Home Assistant URL"
 				placeholder="http://homeassistant.local:8123"
-				:helper-text="'The full URL to your Home Assistant instance'"
-			/>
-			
+				:helper-text="'The full URL to your Home Assistant instance'" />
+
 			<NcTextField
 				:value.sync="haToken"
 				label="Long-Lived Access Token"
 				type="password"
 				placeholder="Enter your Home Assistant token"
-				:helper-text="'Your Home Assistant access token'"
-			/>
-			
+				:helper-text="'Your Home Assistant access token'" />
+
 			<div class="button-group">
 				<NcButton
 					type="primary"
@@ -112,14 +110,14 @@ onMounted(() => {
 					@click="saveSettings">
 					{{ saving ? 'Saving...' : 'Save Settings' }}
 				</NcButton>
-				
+
 				<NcButton
 					:disabled="testing || !haUrl || !haToken"
 					@click="testConnection">
 					{{ testing ? 'Testing...' : 'Test Connection' }}
 				</NcButton>
 			</div>
-			
+
 			<NcNoteCard v-if="testResult" :type="testResult.success ? 'success' : 'error'">
 				{{ testResult.message }}
 			</NcNoteCard>

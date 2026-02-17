@@ -86,8 +86,8 @@ class HomeAssistantService {
 
 		// Check cache
 		$cacheKey = 'person_presence';
-		if (isset($this->cache[$cacheKey]) && 
-			time() - $this->cache[$cacheKey]['timestamp'] < self::CACHE_TTL) {
+		if (isset($this->cache[$cacheKey])
+			&& time() - $this->cache[$cacheKey]['timestamp'] < self::CACHE_TTL) {
 			return $this->cache[$cacheKey]['data'];
 		}
 

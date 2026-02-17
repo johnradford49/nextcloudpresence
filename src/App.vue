@@ -22,7 +22,7 @@ const configured = ref(true)
 const fetchPresence = async () => {
 	loading.value = true
 	error.value = null
-	
+
 	try {
 		const response = await axios.get(generateUrl('/apps/nextcloudpresence/api/presence'))
 		persons.value = response.data
@@ -49,12 +49,12 @@ const formatDate = (dateString: string | null): string => {
 
 const getStateClass = (state: string): string => {
 	switch (state.toLowerCase()) {
-		case 'home':
-			return 'state-home'
-		case 'away':
-			return 'state-away'
-		default:
-			return 'state-other'
+	case 'home':
+		return 'state-home'
+	case 'away':
+		return 'state-away'
+	default:
+		return 'state-other'
 	}
 }
 
@@ -67,9 +67,9 @@ onMounted(() => {
 	<NcContent app-name="nextcloudpresence">
 		<NcAppContent :class="$style.content">
 			<h2>Person Presence</h2>
-			
+
 			<NcLoadingIcon v-if="loading" :class="$style.loading" />
-			
+
 			<NcEmptyContent v-else-if="!configured"
 				:class="$style.empty"
 				title="Home Assistant Not Configured"
@@ -78,7 +78,7 @@ onMounted(() => {
 					<span>⚙️</span>
 				</template>
 			</NcEmptyContent>
-			
+
 			<NcEmptyContent v-else-if="error"
 				:class="$style.empty"
 				:title="error"
@@ -87,7 +87,7 @@ onMounted(() => {
 					<span>⚠️</span>
 				</template>
 			</NcEmptyContent>
-			
+
 			<div v-else-if="persons.length === 0" :class="$style.empty">
 				<NcEmptyContent
 					title="No People Found"
@@ -97,13 +97,15 @@ onMounted(() => {
 					</template>
 				</NcEmptyContent>
 			</div>
-			
+
 			<div v-else :class="$style.personList">
 				<div v-for="person in persons" :key="person.entity_id" :class="$style.personCard">
 					<div :class="[$style.personState, $style[getStateClass(person.state)]]">
 						{{ person.state }}
 					</div>
-					<div :class="$style.personName">{{ person.name }}</div>
+					<div :class="$style.personName">
+						{{ person.name }}
+					</div>
 					<div :class="$style.personInfo">
 						<span :class="$style.label">Entity ID:</span> {{ person.entity_id }}
 					</div>

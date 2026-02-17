@@ -37,7 +37,7 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/presence')]
 	public function getPresence(): DataResponse {
 		$result = $this->haService->getPersonPresence();
-		
+
 		if (!$result['success']) {
 			return new DataResponse(
 				['error' => $result['error'] ?? 'Unknown error'],
@@ -73,7 +73,7 @@ class ApiController extends OCSController {
 	public function saveSettings(string $url, string $token): DataResponse {
 		// Remove trailing slashes from URL
 		$url = rtrim($url, '/');
-		
+
 		$this->config->setAppValue('nextcloudpresence', 'ha_url', $url);
 		$this->config->setAppValue('nextcloudpresence', 'ha_token', $token);
 
