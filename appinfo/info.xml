@@ -3,8 +3,8 @@
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
 	<id>nextcloudpresence</id>
 	<name>Nextcloud Presence</name>
-	<summary>Show person presence in nexrcloud from home assistant person location trackers</summary>
-	<description>Show person presence in nexrcloud from home assistant person location trackers</description>
+	<summary>Show person presence in Nextcloud from Home Assistant person location trackers</summary>
+	<description>Show person presence in Nextcloud from Home Assistant person location trackers</description>
 	<version>1.0.0</version>
 	<licence>AGPL-3.0-or-later</licence>
 	<author mail="jrspencader@btinternet.com" homepage="https://github.com/johnradford49/HA_presence_to_nextcloud">John Radford</author>
