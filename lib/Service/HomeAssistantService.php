@@ -46,6 +46,26 @@ class HomeAssistantService {
 	}
 
 	/**
+	 * Sanitize URL for logging by removing path and query components
+	 *
+	 * @param string $url The URL to sanitize
+	 * @return string Sanitized URL containing only scheme, host, and port
+	 */
+	private function sanitizeUrlForLogging(string $url): string {
+		$parsedUrl = parse_url($url);
+		if ($parsedUrl === false || !isset($parsedUrl['host'])) {
+			return 'invalid-url';
+		}
+
+		$sanitizedUrl = ($parsedUrl['scheme'] ?? 'http') . '://' . $parsedUrl['host'];
+		if (isset($parsedUrl['port'])) {
+			$sanitizedUrl .= ':' . $parsedUrl['port'];
+		}
+
+		return $sanitizedUrl;
+	}
+
+	/**
 	 * Test the connection to Home Assistant
 	 *
 	 * @param string $url URL to test (defaults to saved config if empty)
@@ -92,12 +112,7 @@ class HomeAssistantService {
 			];
 		}
 
-		// Parse and sanitize URL for logging (hide any path/query components)
-		$parsedUrl = parse_url($url);
-		$sanitizedUrl = ($parsedUrl['scheme'] ?? 'http') . '://' . ($parsedUrl['host'] ?? 'unknown');
-		if (isset($parsedUrl['port'])) {
-			$sanitizedUrl .= ':' . $parsedUrl['port'];
-		}
+		$sanitizedUrl = $this->sanitizeUrlForLogging($url);
 
 		$this->logger->info('Initiating connection test', [
 			'url' => $sanitizedUrl,
@@ -140,12 +155,7 @@ class HomeAssistantService {
 				'message' => 'Failed to connect: HTTP ' . $statusCode,
 			];
 		} catch (\Exception $e) {
-			// Parse and sanitize URL for logging
-			$parsedUrl = parse_url($url);
-			$sanitizedUrl = ($parsedUrl['scheme'] ?? 'http') . '://' . ($parsedUrl['host'] ?? 'unknown');
-			if (isset($parsedUrl['port'])) {
-				$sanitizedUrl .= ':' . $parsedUrl['port'];
-			}
+			$sanitizedUrl = $this->sanitizeUrlForLogging($url);
 
 			$this->logger->error('Failed to connect to Home Assistant: ' . $e->getMessage(), [
 				'exception' => $e,
@@ -195,12 +205,7 @@ class HomeAssistantService {
 			return $this->cache[$cacheKey]['data'];
 		}
 
-		// Parse and sanitize URL for logging
-		$parsedUrl = parse_url($url);
-		$sanitizedUrl = ($parsedUrl['scheme'] ?? 'http') . '://' . ($parsedUrl['host'] ?? 'unknown');
-		if (isset($parsedUrl['port'])) {
-			$sanitizedUrl .= ':' . $parsedUrl['port'];
-		}
+		$sanitizedUrl = $this->sanitizeUrlForLogging($url);
 
 		$this->logger->debug('Cache miss, fetching fresh person presence data', [
 			'url' => $sanitizedUrl,
@@ -275,12 +280,7 @@ class HomeAssistantService {
 
 			return $result;
 		} catch (\Exception $e) {
-			// Parse and sanitize URL for logging
-			$parsedUrl = parse_url($url);
-			$sanitizedUrl = ($parsedUrl['scheme'] ?? 'http') . '://' . ($parsedUrl['host'] ?? 'unknown');
-			if (isset($parsedUrl['port'])) {
-				$sanitizedUrl .= ':' . $parsedUrl['port'];
-			}
+			$sanitizedUrl = $this->sanitizeUrlForLogging($url);
 
 			$this->logger->error('Failed to fetch person presence from Home Assistant: ' . $e->getMessage(), [
 				'exception' => $e,
