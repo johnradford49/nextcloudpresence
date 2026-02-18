@@ -191,6 +191,9 @@ class HomeAssistantService {
 			];
 		}
 
+		// Sanitize URL early for error logging
+		$sanitizedUrl = $this->sanitizeUrlForLogging($url);
+
 		// Check cache
 		$cacheKey = 'person_presence';
 		$cacheTTL = $this->getCacheTTL();
@@ -202,8 +205,6 @@ class HomeAssistantService {
 			]);
 			return $this->cache[$cacheKey]['data'];
 		}
-
-		$sanitizedUrl = $this->sanitizeUrlForLogging($url);
 
 		$this->logger->debug('Cache miss, fetching fresh person presence data', [
 			'url' => $sanitizedUrl,
