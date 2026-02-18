@@ -11,7 +11,7 @@ use OCP\Config\ValueType;
 
 class ConfigLexicon implements ILexicon {
 	public function getStrictness(): Strictness {
-		return Strictness::NOTICE;
+		return Strictness::IGNORE;
 	}
 
 	public function getAppConfigs(): array {
