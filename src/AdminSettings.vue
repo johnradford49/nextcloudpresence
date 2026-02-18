@@ -8,7 +8,7 @@ import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
 
-const haUrl = ref('http://192.168.107.168:8123')
+const haUrl = ref('')
 const haToken = ref('')
 const pollingInterval = ref(30)
 const connectionTimeout = ref(10)
