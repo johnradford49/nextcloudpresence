@@ -155,8 +155,6 @@ class HomeAssistantService {
 				'message' => 'Failed to connect: HTTP ' . $statusCode,
 			];
 		} catch (\Exception $e) {
-			$sanitizedUrl = $this->sanitizeUrlForLogging($url);
-
 			$this->logger->error('Failed to connect to Home Assistant: ' . $e->getMessage(), [
 				'exception' => $e,
 				'exception_class' => get_class($e),
@@ -280,8 +278,6 @@ class HomeAssistantService {
 
 			return $result;
 		} catch (\Exception $e) {
-			$sanitizedUrl = $this->sanitizeUrlForLogging($url);
-
 			$this->logger->error('Failed to fetch person presence from Home Assistant: ' . $e->getMessage(), [
 				'exception' => $e,
 				'exception_class' => get_class($e),
