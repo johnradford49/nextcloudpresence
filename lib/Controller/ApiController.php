@@ -70,6 +70,13 @@ class ApiController extends OCSController {
 		int $connection_timeout = 10,
 		bool $verify_ssl = true,
 	): DataResponse {
+		// Validate connection timeout (minimum 5 seconds, maximum 60 seconds)
+		if ($connection_timeout < 5) {
+			$connection_timeout = 5;
+		} elseif ($connection_timeout > 60) {
+			$connection_timeout = 60;
+		}
+
 		$result = $this->haService->testConnection($url, $token, $connection_timeout, $verify_ssl);
 		return new DataResponse($result);
 	}
