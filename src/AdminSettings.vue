@@ -19,12 +19,13 @@ const testResult = ref<{ success: boolean; message: string } | null>(null)
 
 const loadSettings = async () => {
 	try {
-		const response = await axios.get(generateUrl('/apps/nextcloudpresence/api/settings'))
-		haUrl.value = response.data.url || ''
-		haToken.value = response.data.token || ''
-		pollingInterval.value = parseInt(response.data.polling_interval) || 30
-		connectionTimeout.value = parseInt(response.data.connection_timeout) || 10
-		verifySSL.value = response.data.verify_ssl !== false
+		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/settings'))
+		const data = response.data.ocs?.data || response.data
+		haUrl.value = data.url || ''
+		haToken.value = data.token || ''
+		pollingInterval.value = parseInt(data.polling_interval) || 30
+		connectionTimeout.value = parseInt(data.connection_timeout) || 10
+		verifySSL.value = data.verify_ssl !== false
 	} catch (e) {
 		showError('Failed to load settings')
 	}
@@ -35,7 +36,7 @@ const saveSettings = async () => {
 	testResult.value = null
 
 	try {
-		await axios.post(generateUrl('/apps/nextcloudpresence/api/settings'), {
+		await axios.post(generateUrl('/ocs/v2.php/apps/nextcloudpresence/settings'), {
 			url: haUrl.value,
 			token: haToken.value,
 			polling_interval: pollingInterval.value,
@@ -55,18 +56,19 @@ const testConnection = async () => {
 	testResult.value = null
 
 	try {
-		const response = await axios.get(generateUrl('/apps/nextcloudpresence/api/test-connection'))
-		testResult.value = response.data
+		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/test-connection'))
+		const data = response.data.ocs?.data || response.data
+		testResult.value = data
 
-		if (response.data.success) {
+		if (data.success) {
 			showSuccess('Connection successful!')
 		} else {
-			showError(response.data.message)
+			showError(data.message)
 		}
 	} catch (e: any) {
 		testResult.value = {
 			success: false,
-			message: e.response?.data?.message || 'Failed to test connection',
+			message: e.response?.data?.ocs?.data?.message || e.response?.data?.message || 'Failed to test connection',
 		}
 		showError('Connection test failed')
 	} finally {
