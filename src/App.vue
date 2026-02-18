@@ -24,12 +24,14 @@ const fetchPresence = async () => {
 	error.value = null
 
 	try {
-		const response = await axios.get(generateUrl('/apps/nextcloudpresence/api/presence'))
-		persons.value = response.data
+		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/presence'))
+		const data = response.data.ocs?.data || response.data
+		persons.value = data
 		configured.value = true
 	} catch (e: any) {
-		if (e.response?.data?.error) {
-			error.value = e.response.data.error
+		const errorData = e.response?.data?.ocs?.data || e.response?.data
+		if (errorData?.error) {
+			error.value = errorData.error
 			if (error.value.includes('not configured')) {
 				configured.value = false
 			}
