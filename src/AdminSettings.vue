@@ -56,7 +56,10 @@ const testConnection = async () => {
 	testResult.value = null
 
 	try {
-		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/test-connection'))
+		const response = await axios.post(generateUrl('/ocs/v2.php/apps/nextcloudpresence/test-connection'), {
+			url: haUrl.value,
+			token: haToken.value,
+		})
 		const data = response.data.ocs?.data || response.data
 		testResult.value = data
 
