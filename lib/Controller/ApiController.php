@@ -8,6 +8,7 @@ use OCA\NextcloudPresence\Service\HomeAssistantService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IConfig;
@@ -59,6 +60,7 @@ class ApiController extends OCSController {
 	 * 200: Test result
 	 */
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	#[ApiRoute(verb: 'POST', url: '/test-connection')]
 	public function testConnection(string $url = '', string $token = ''): DataResponse {
 		$result = $this->haService->testConnection($url, $token);
@@ -78,6 +80,7 @@ class ApiController extends OCSController {
 	 * 200: Settings saved
 	 */
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	#[ApiRoute(verb: 'POST', url: '/settings')]
 	public function saveSettings(
 		string $url,
