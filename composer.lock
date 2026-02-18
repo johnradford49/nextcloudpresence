@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b2877d1c42e3113197e23916fa601b59",
+    "content-hash": "877040b374b4ec72f59b82b73d487cc0",
     "packages": [
         {
             "name": "bamarni/composer-bin-plugin",
@@ -67,16 +67,16 @@
     "packages-dev": [
         {
             "name": "nextcloud/ocp",
-            "version": "dev-stable31",
+            "version": "dev-stable32",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nextcloud-deps/ocp.git",
-                "reference": "b369e02e33a1b9327eb3c4c5f639135b66e7bc8f"
+                "reference": "83cf79e2922fe1c969adeeac8dbb10e173a8d781"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/b369e02e33a1b9327eb3c4c5f639135b66e7bc8f",
-                "reference": "b369e02e33a1b9327eb3c4c5f639135b66e7bc8f",
+                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/83cf79e2922fe1c969adeeac8dbb10e173a8d781",
+                "reference": "83cf79e2922fe1c969adeeac8dbb10e173a8d781",
                 "shasum": ""
             },
             "require": {
@@ -89,7 +89,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-stable31": "31.0.0-dev"
+                    "dev-stable32": "32.0.0-dev"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -109,7 +109,7 @@
             "description": "Composer package containing Nextcloud's public OCP API and the unstable NCU API",
             "support": {
                 "issues": "https://github.com/nextcloud-deps/ocp/issues",
-                "source": "https://github.com/nextcloud-deps/ocp/tree/stable31"
+                "source": "https://github.com/nextcloud-deps/ocp/tree/stable32"
             },
             "time": "2026-02-06T01:05:41+00:00"
         },
@@ -320,12 +320,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "6683d4c2698e2fea48c8dc23c19bb38491290bb1"
+                "reference": "1476a499c47192447981cb2a9b63f87eca5abc83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/6683d4c2698e2fea48c8dc23c19bb38491290bb1",
-                "reference": "6683d4c2698e2fea48c8dc23c19bb38491290bb1",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/1476a499c47192447981cb2a9b63f87eca5abc83",
+                "reference": "1476a499c47192447981cb2a9b63f87eca5abc83",
                 "shasum": ""
             },
             "conflict": {
@@ -596,7 +596,7 @@
                 "filegator/filegator": "<7.8",
                 "filp/whoops": "<2.1.13",
                 "fineuploader/php-traditional-server": "<=1.2.2",
-                "firebase/php-jwt": "<6",
+                "firebase/php-jwt": "<7",
                 "fisharebest/webtrees": "<=2.1.18",
                 "fixpunkt/fp-masterquiz": "<2.2.1|>=3,<3.5.2",
                 "fixpunkt/fp-newsletter": "<1.1.1|>=1.2,<2.1.2|>=2.2,<3.2.6",
@@ -1337,7 +1337,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-17T17:23:58+00:00"
+            "time": "2026-02-18T01:37:03+00:00"
         }
     ],
     "aliases": [],
