@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace OCA\NextcloudPresence\Config;
 
-use OCP\Config\Lexicon\Entry;
-use OCP\Config\Lexicon\ILexicon;
-use OCP\Config\Lexicon\Strictness;
-use OCP\Config\ValueType;
+use NCU\Config\Lexicon\ConfigLexiconEntry;
+use NCU\Config\Lexicon\ConfigLexiconStrictness;
+use NCU\Config\Lexicon\IConfigLexicon;
+use NCU\Config\ValueType;
 
-class ConfigLexicon implements ILexicon {
-	public function getStrictness(): Strictness {
-		return Strictness::NOTICE;
+class ConfigLexicon implements IConfigLexicon {
+	public function getStrictness(): ConfigLexiconStrictness {
+		return ConfigLexiconStrictness::NOTICE;
 	}
 
 	public function getAppConfigs(): array {
 		return [
-			new Entry(
+			new ConfigLexiconEntry(
 				key: 'ha_url',
 				type: ValueType::STRING,
 				defaultRaw: '',
 				definition: 'Home Assistant URL',
 				lazy: true,
 			),
-			new Entry(
+			new ConfigLexiconEntry(
 				key: 'ha_token',
 				type: ValueType::STRING,
 				defaultRaw: '',
@@ -31,21 +31,21 @@ class ConfigLexicon implements ILexicon {
 				lazy: true,
 				flags: \OCP\IAppConfig::FLAG_SENSITIVE,
 			),
-			new Entry(
+			new ConfigLexiconEntry(
 				key: 'ha_polling_interval',
 				type: ValueType::STRING,
 				defaultRaw: '30',
 				definition: 'Polling interval in seconds (minimum 10)',
 				lazy: true,
 			),
-			new Entry(
+			new ConfigLexiconEntry(
 				key: 'ha_connection_timeout',
 				type: ValueType::STRING,
 				defaultRaw: '10',
 				definition: 'Connection timeout in seconds',
 				lazy: true,
 			),
-			new Entry(
+			new ConfigLexiconEntry(
 				key: 'ha_verify_ssl',
 				type: ValueType::STRING,
 				defaultRaw: '1',
