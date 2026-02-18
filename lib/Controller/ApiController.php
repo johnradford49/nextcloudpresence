@@ -52,15 +52,15 @@ class ApiController extends OCSController {
 	/**
 	 * Test Home Assistant connection
 	 *
-	 * @param string|null $url Optional Home Assistant URL to test
-	 * @param string|null $token Optional Home Assistant token to test
+	 * @param string $url Home Assistant URL to test
+	 * @param string $token Home Assistant token to test
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool, message: string}, array{}>
 	 *
 	 * 200: Test result
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/test-connection')]
-	public function testConnection(?string $url = null, ?string $token = null): DataResponse {
+	public function testConnection(string $url = '', string $token = ''): DataResponse {
 		$result = $this->haService->testConnection($url, $token);
 		return new DataResponse($result);
 	}
