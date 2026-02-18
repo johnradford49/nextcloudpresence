@@ -77,6 +77,7 @@ class ApiController extends OCSController {
 	 *
 	 * 200: Settings saved
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/settings')]
 	public function saveSettings(
 		string $url,
@@ -116,6 +117,7 @@ class ApiController extends OCSController {
 	 *
 	 * 200: Settings returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/settings')]
 	public function getSettings(): DataResponse {
 		return new DataResponse([
