@@ -9,6 +9,9 @@ use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 
 class HomeAssistantService {
+	private const API_BASE_PATH = '/api/';
+	private const API_STATES_PATH = '/api/states';
+
 	private array $cache = [];
 
 	public function __construct(
@@ -116,7 +119,7 @@ class HomeAssistantService {
 
 		$this->logger->info('Initiating connection test', [
 			'url' => $sanitizedUrl,
-			'api_endpoint' => $sanitizedUrl . '/api/',
+			'api_endpoint' => $sanitizedUrl . self::API_BASE_PATH,
 			'timeout' => $connectionTimeout,
 			'verify_ssl' => $verifySSL,
 		]);
@@ -125,7 +128,7 @@ class HomeAssistantService {
 			$client = $this->clientService->newClient();
 			$this->logger->debug('HTTP client created successfully');
 
-			$response = $client->get($url . '/api/', [
+			$response = $client->get($url . self::API_BASE_PATH, [
 				'headers' => [
 					'Authorization' => 'Bearer ' . $token,
 					'Content-Type' => 'application/json',
@@ -191,7 +194,7 @@ class HomeAssistantService {
 			];
 		}
 
-		// Sanitize URL early for error logging
+		// Sanitize URL for logging throughout this method
 		$sanitizedUrl = $this->sanitizeUrlForLogging($url);
 
 		// Check cache
@@ -214,7 +217,7 @@ class HomeAssistantService {
 
 		try {
 			$client = $this->clientService->newClient();
-			$response = $client->get($url . '/api/states', [
+			$response = $client->get($url . self::API_STATES_PATH, [
 				'headers' => [
 					'Authorization' => 'Bearer ' . $token,
 					'Content-Type' => 'application/json',
