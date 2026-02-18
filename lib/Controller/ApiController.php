@@ -55,6 +55,8 @@ class ApiController extends OCSController {
 	 *
 	 * @param string $url Home Assistant URL to test
 	 * @param string $token Home Assistant token to test
+	 * @param int $connection_timeout Connection timeout in seconds (optional, defaults to 10)
+	 * @param bool $verify_ssl Whether to verify SSL certificates (optional, defaults to true)
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool, message: string}, array{}>
 	 *
 	 * 200: Test result
@@ -62,8 +64,20 @@ class ApiController extends OCSController {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	#[ApiRoute(verb: 'POST', url: '/test-connection')]
-	public function testConnection(string $url = '', string $token = ''): DataResponse {
-		$result = $this->haService->testConnection($url, $token);
+	public function testConnection(
+		string $url = '',
+		string $token = '',
+		int $connection_timeout = 10,
+		bool $verify_ssl = true,
+	): DataResponse {
+		// Validate connection timeout (minimum 5 seconds, maximum 60 seconds)
+		if ($connection_timeout < 5) {
+			$connection_timeout = 5;
+		} elseif ($connection_timeout > 60) {
+			$connection_timeout = 60;
+		}
+
+		$result = $this->haService->testConnection($url, $token, $connection_timeout, $verify_ssl);
 		return new DataResponse($result);
 	}
 
