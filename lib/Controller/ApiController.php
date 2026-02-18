@@ -11,6 +11,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IConfig;
+use OCP\IRequest;
 
 /**
  * @psalm-suppress UnusedClass
@@ -18,7 +19,7 @@ use OCP\IConfig;
 class ApiController extends OCSController {
 	public function __construct(
 		string $appName,
-		$request,
+		IRequest $request,
 		private HomeAssistantService $haService,
 		private IConfig $config,
 	) {
