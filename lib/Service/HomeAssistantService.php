@@ -50,15 +50,25 @@ class HomeAssistantService {
 	 *
 	 * @param string $url URL to test (defaults to saved config if empty)
 	 * @param string $token Token to test (defaults to saved config if empty)
+	 * @param int $connectionTimeout Connection timeout in seconds (defaults to saved config or 10)
+	 * @param bool $verifySSL Whether to verify SSL certificates (defaults to saved config or true)
 	 * @return array{success: bool, message: string}
 	 */
-	public function testConnection(string $url = '', string $token = ''): array {
+	public function testConnection(
+		string $url = '',
+		string $token = '',
+		int $connectionTimeout = 0,
+		bool $verifySSL = true,
+	): array {
 		// Use provided values if not empty, otherwise fall back to saved config
 		if ($url === '') {
 			$url = $this->config->getAppValue('nextcloudpresence', 'ha_url', '');
 		}
 		if ($token === '') {
 			$token = $this->config->getAppValue('nextcloudpresence', 'ha_token', '');
+		}
+		if ($connectionTimeout <= 0) {
+			$connectionTimeout = $this->getConnectionTimeout();
 		}
 
 		if ($url === '' || $token === '') {
@@ -75,8 +85,8 @@ class HomeAssistantService {
 					'Authorization' => 'Bearer ' . $token,
 					'Content-Type' => 'application/json',
 				],
-				'timeout' => $this->getConnectionTimeout(),
-				'verify' => $this->getVerifySSL(),
+				'timeout' => $connectionTimeout,
+				'verify' => $verifySSL,
 			]);
 
 			if ($response->getStatusCode() === 200) {

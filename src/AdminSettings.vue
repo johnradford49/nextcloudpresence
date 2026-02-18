@@ -59,6 +59,8 @@ const testConnection = async () => {
 		const response = await axios.post(generateUrl('/ocs/v2.php/apps/nextcloudpresence/test-connection'), {
 			url: haUrl.value,
 			token: haToken.value,
+			connection_timeout: connectionTimeout.value,
+			verify_ssl: verifySSL.value,
 		})
 		const data = response.data.ocs?.data || response.data
 		testResult.value = data
