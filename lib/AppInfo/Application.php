@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace OCA\NextcloudPresence\AppInfo;
 
-use OCA\NextcloudPresence\Settings\AdminSettings;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -19,7 +18,6 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function register(IRegistrationContext $context): void {
-		$context->registerSettings(AdminSettings::class);
 	}
 
 	public function boot(IBootContext $context): void {
