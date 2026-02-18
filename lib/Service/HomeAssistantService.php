@@ -48,13 +48,18 @@ class HomeAssistantService {
 	/**
 	 * Test the connection to Home Assistant
 	 *
-	 * @param string|null $url Optional URL to test (defaults to saved config)
-	 * @param string|null $token Optional token to test (defaults to saved config)
+	 * @param string $url URL to test (defaults to saved config if empty)
+	 * @param string $token Token to test (defaults to saved config if empty)
 	 * @return array{success: bool, message: string}
 	 */
-	public function testConnection(?string $url = null, ?string $token = null): array {
-		$url = $url ?? $this->config->getAppValue('nextcloudpresence', 'ha_url', '');
-		$token = $token ?? $this->config->getAppValue('nextcloudpresence', 'ha_token', '');
+	public function testConnection(string $url = '', string $token = ''): array {
+		// Use provided values if not empty, otherwise fall back to saved config
+		if (empty($url)) {
+			$url = $this->config->getAppValue('nextcloudpresence', 'ha_url', '');
+		}
+		if (empty($token)) {
+			$token = $this->config->getAppValue('nextcloudpresence', 'ha_token', '');
+		}
 
 		if (empty($url) || empty($token)) {
 			return [
