@@ -54,14 +54,14 @@ class HomeAssistantService {
 	 */
 	public function testConnection(string $url = '', string $token = ''): array {
 		// Use provided values if not empty, otherwise fall back to saved config
-		if (empty($url)) {
+		if ($url === '') {
 			$url = $this->config->getAppValue('nextcloudpresence', 'ha_url', '');
 		}
-		if (empty($token)) {
+		if ($token === '') {
 			$token = $this->config->getAppValue('nextcloudpresence', 'ha_token', '');
 		}
 
-		if (empty($url) || empty($token)) {
+		if ($url === '' || $token === '') {
 			return [
 				'success' => false,
 				'message' => 'Home Assistant URL and token must be configured',
