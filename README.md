@@ -20,7 +20,7 @@ Show person presence in Nextcloud from Home Assistant person location trackers.
 
 After installation, configure the app by navigating to:
 
-**User menu → Administration settings → HA presence settings **
+**User menu → Administration settings → Additional settings **
 
 You will need:
 - **Home Assistant URL**: The full URL to your Home Assistant instance (e.g., `http://homeassistant.local:8123`)
