@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OCA\NextcloudPresence\Service;
 
 use OCP\Http\Client\IClientService;
-use OCP\IConfig;
+use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 
 class HomeAssistantService {
@@ -16,7 +16,7 @@ class HomeAssistantService {
 
 	public function __construct(
 		private IClientService $clientService,
-		private IConfig $config,
+		private IAppConfig $appConfig,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -27,7 +27,7 @@ class HomeAssistantService {
 	 * @return int Cache TTL in seconds
 	 */
 	private function getCacheTTL(): int {
-		return (int)$this->config->getAppValue('nextcloudpresence', 'ha_polling_interval', '30');
+		return (int)$this->appConfig->getValueString('nextcloudpresence', 'ha_polling_interval', '30', lazy: true);
 	}
 
 	/**
@@ -36,7 +36,7 @@ class HomeAssistantService {
 	 * @return int Connection timeout in seconds
 	 */
 	private function getConnectionTimeout(): int {
-		return (int)$this->config->getAppValue('nextcloudpresence', 'ha_connection_timeout', '10');
+		return (int)$this->appConfig->getValueString('nextcloudpresence', 'ha_connection_timeout', '10', lazy: true);
 	}
 
 	/**
@@ -45,7 +45,7 @@ class HomeAssistantService {
 	 * @return bool Whether to verify SSL certificates
 	 */
 	private function getVerifySSL(): bool {
-		return $this->config->getAppValue('nextcloudpresence', 'ha_verify_ssl', '1') === '1';
+		return $this->appConfig->getValueString('nextcloudpresence', 'ha_verify_ssl', '1', lazy: true) === '1';
 	}
 
 	/**
@@ -92,11 +92,11 @@ class HomeAssistantService {
 
 		// Use provided values if not empty, otherwise fall back to saved config
 		if ($url === '') {
-			$url = $this->config->getAppValue('nextcloudpresence', 'ha_url', '');
+			$url = $this->appConfig->getValueString('nextcloudpresence', 'ha_url', '', lazy: true);
 			$this->logger->debug('Using saved URL from config');
 		}
 		if ($token === '') {
-			$token = $this->config->getAppValue('nextcloudpresence', 'ha_token', '');
+			$token = $this->appConfig->getValueString('nextcloudpresence', 'ha_token', '', lazy: true);
 			$this->logger->debug('Using saved token from config');
 		}
 		if ($connectionTimeout <= 0) {
@@ -178,8 +178,8 @@ class HomeAssistantService {
 	 * @return array{success: bool, data?: array, error?: string}
 	 */
 	public function getPersonPresence(): array {
-		$url = $this->config->getAppValue('nextcloudpresence', 'ha_url', '');
-		$token = $this->config->getAppValue('nextcloudpresence', 'ha_token', '');
+		$url = $this->appConfig->getValueString('nextcloudpresence', 'ha_url', '', lazy: true);
+		$token = $this->appConfig->getValueString('nextcloudpresence', 'ha_token', '', lazy: true);
 
 		$this->logger->debug('Fetching person presence from Home Assistant', [
 			'url_configured' => !empty($url),

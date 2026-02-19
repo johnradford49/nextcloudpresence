@@ -11,7 +11,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
-use OCP\IConfig;
+use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
@@ -24,7 +24,7 @@ class ApiController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private HomeAssistantService $haService,
-		private IConfig $config,
+		private IAppConfig $appConfig,
 		private IGroupManager $groupManager,
 		private IUserSession $userSession,
 	) {
@@ -132,11 +132,11 @@ class ApiController extends OCSController {
 			$connection_timeout = 60;
 		}
 
-		$this->config->setAppValue('nextcloudpresence', 'ha_url', $url);
-		$this->config->setAppValue('nextcloudpresence', 'ha_token', $token);
-		$this->config->setAppValue('nextcloudpresence', 'ha_polling_interval', (string)$polling_interval);
-		$this->config->setAppValue('nextcloudpresence', 'ha_connection_timeout', (string)$connection_timeout);
-		$this->config->setAppValue('nextcloudpresence', 'ha_verify_ssl', $verify_ssl ? '1' : '0');
+		$this->appConfig->setValueString('nextcloudpresence', 'ha_url', $url, lazy: true);
+		$this->appConfig->setValueString('nextcloudpresence', 'ha_token', $token, lazy: true, sensitive: true);
+		$this->appConfig->setValueString('nextcloudpresence', 'ha_polling_interval', (string)$polling_interval, lazy: true);
+		$this->appConfig->setValueString('nextcloudpresence', 'ha_connection_timeout', (string)$connection_timeout, lazy: true);
+		$this->appConfig->setValueString('nextcloudpresence', 'ha_verify_ssl', $verify_ssl ? '1' : '0', lazy: true);
 
 		return new DataResponse(['success' => true]);
 	}
@@ -153,11 +153,11 @@ class ApiController extends OCSController {
 	public function getSettings(): DataResponse {
 
 		return new DataResponse([
-			'url' => $this->config->getAppValue('nextcloudpresence', 'ha_url', ''),
-			'token' => $this->config->getAppValue('nextcloudpresence', 'ha_token', ''),
-			'polling_interval' => $this->config->getAppValue('nextcloudpresence', 'ha_polling_interval', '30'),
-			'connection_timeout' => $this->config->getAppValue('nextcloudpresence', 'ha_connection_timeout', '10'),
-			'verify_ssl' => $this->config->getAppValue('nextcloudpresence', 'ha_verify_ssl', '1') === '1',
+			'url' => $this->appConfig->getValueString('nextcloudpresence', 'ha_url', '', lazy: true),
+			'token' => $this->appConfig->getValueString('nextcloudpresence', 'ha_token', '', lazy: true),
+			'polling_interval' => $this->appConfig->getValueString('nextcloudpresence', 'ha_polling_interval', '30', lazy: true),
+			'connection_timeout' => $this->appConfig->getValueString('nextcloudpresence', 'ha_connection_timeout', '10', lazy: true),
+			'verify_ssl' => $this->appConfig->getValueString('nextcloudpresence', 'ha_verify_ssl', '1', lazy: true) === '1',
 		]);
 	}
 }
