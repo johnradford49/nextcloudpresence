@@ -32,6 +32,16 @@ class ApiController extends OCSController {
 	}
 
 	/**
+	 * Check if the current user is an administrator
+	 *
+	 * @return bool True if the user is an admin, false otherwise
+	 */
+	private function isUserAdmin(): bool {
+		$user = $this->userSession->getUser();
+		return $user !== null && $this->groupManager->isAdmin($user->getUID());
+	}
+
+	/**
 	 * Get person presence data from Home Assistant
 	 *
 	 * @return DataResponse<Http::STATUS_OK, list<array{entity_id: string, name: string, state: string, last_changed: string|null}>, array{}>|DataResponse<Http::STATUS_INTERNAL_SERVER_ERROR, array{error: string}, array{}>
@@ -108,8 +118,7 @@ class ApiController extends OCSController {
 		bool $verify_ssl = true,
 	): DataResponse {
 		// Check if the user is an admin
-		$user = $this->userSession->getUser();
-		if ($user === null || !$this->groupManager->isAdmin($user->getUID())) {
+		if (!$this->isUserAdmin()) {
 			return new DataResponse(
 				['error' => 'Only administrators can modify these settings'],
 				Http::STATUS_FORBIDDEN
@@ -152,8 +161,7 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/settings')]
 	public function getSettings(): DataResponse {
 		// Check if the user is an admin
-		$user = $this->userSession->getUser();
-		if ($user === null || !$this->groupManager->isAdmin($user->getUID())) {
+		if (!$this->isUserAdmin()) {
 			return new DataResponse(
 				['error' => 'Only administrators can access these settings'],
 				Http::STATUS_FORBIDDEN
