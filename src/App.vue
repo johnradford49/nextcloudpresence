@@ -194,7 +194,7 @@ onUnmounted(() => {
 			<div :class="$style.header">
 				<h2>Person Presence</h2>
 				<div :class="$style.actions">
-					<NcButton v-if="persons.length >= 0"
+					<NcButton>
 						type="secondary"
 						:class="$style.actionButton"
 						@click="exportCsv">
