@@ -157,7 +157,15 @@ class HomeAssistantService {
 				'success' => false,
 				'message' => 'Failed to connect: HTTP ' . $statusCode,
 			];
-		} catch (\Exception $e) {
+		} catch (\OCP\Http\Client\LocalServerException $e) {
+			$this->logger->warning('Connection to local server blocked by SSRF protection', [
+				'url' => $sanitizedUrl,
+			]);
+			return [
+				'success' => false,
+				'message' => 'Cannot connect to a local server. If your Home Assistant is on a local network, ask your Nextcloud administrator to add "allow_local_remote_servers" => true to config.php.',
+			];
+		} catch (\Throwable $e) {
 			$this->logger->error('Failed to connect to Home Assistant: ' . $e->getMessage(), [
 				'exception' => $e,
 				'exception_class' => get_class($e),
@@ -167,7 +175,7 @@ class HomeAssistantService {
 			]);
 			return [
 				'success' => false,
-				'message' => 'Connection error: ' . $e->getMessage(),
+				'message' => 'Could not connect to Home Assistant. Please verify the URL is correct and the server is running and accessible.',
 			];
 		}
 	}
@@ -281,7 +289,7 @@ class HomeAssistantService {
 			];
 
 			return $result;
-		} catch (\Exception $e) {
+		} catch (\Throwable $e) {
 			$this->logger->error('Failed to fetch person presence from Home Assistant: ' . $e->getMessage(), [
 				'exception' => $e,
 				'exception_class' => get_class($e),
@@ -291,7 +299,7 @@ class HomeAssistantService {
 			]);
 			return [
 				'success' => false,
-				'error' => 'Connection error: ' . $e->getMessage(),
+				'error' => 'Could not connect to Home Assistant. Please check your settings.',
 			];
 		}
 	}
