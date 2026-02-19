@@ -187,7 +187,7 @@ class HomeAssistantService {
 		]);
 
 		if (empty($url) || empty($token)) {
-			$this->logger->warning('Home Assistant not configured for person presence fetch');
+			$this->logger->warning('Home Assistant is not configured');
 			return [
 				'success' => false,
 				'error' => 'Home Assistant is not configured',
