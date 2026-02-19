@@ -19,7 +19,7 @@ const testResult = ref<{ success: boolean; message: string } | null>(null)
 
 const loadSettings = async () => {
 	try {
-		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/api/v1/settings'))
+		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/settings'))
 		const data = response.data.ocs?.data || response.data
 		haUrl.value = data.url || ''
 		haToken.value = data.token || ''
@@ -36,7 +36,7 @@ const saveSettings = async () => {
 	testResult.value = null
 
 	try {
-		await axios.post(generateUrl('/ocs/v2.php/apps/nextcloudpresence/api/v1/settings'), {
+		await axios.post(generateUrl('/ocs/v2.php/apps/nextcloudpresence/settings'), {
 			url: haUrl.value,
 			token: haToken.value,
 			polling_interval: pollingInterval.value,
@@ -56,7 +56,7 @@ const testConnection = async () => {
 	testResult.value = null
 
 	try {
-		const response = await axios.post(generateUrl('/ocs/v2.php/apps/nextcloudpresence/api/v1/test-connection'), {
+		const response = await axios.post(generateUrl('/ocs/v2.php/apps/nextcloudpresence/test-connection'), {
 			url: haUrl.value,
 			token: haToken.value,
 			connection_timeout: connectionTimeout.value,
