@@ -93,7 +93,6 @@ class ApiController extends OCSController {
 	 *
 	 * 200: Settings saved
 	 */
-	#[NoCSRFRequired]
 	#[ApiRoute(verb: 'POST', url: '/settings')]
 	public function saveSettings(
 		string $url,
