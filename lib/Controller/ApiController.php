@@ -109,6 +109,7 @@ class ApiController extends OCSController {
 	 * 403: User is not an admin
 	 */
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	#[ApiRoute(verb: 'POST', url: '/settings')]
 	public function saveSettings(
 		string $url,
@@ -158,6 +159,7 @@ class ApiController extends OCSController {
 	 * 403: User is not an admin
 	 */
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	#[ApiRoute(verb: 'GET', url: '/settings')]
 	public function getSettings(): DataResponse {
 		// Check if the user is an admin
