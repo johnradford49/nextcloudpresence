@@ -30,6 +30,7 @@ You will need:
   3. Click "Create Token"
   4. Give it a name (e.g., "Nextcloud Presence")
   5. Copy the token and paste it in the Nextcloud settings
+If getting access violation error, add 'allow_local_remote_servers' => true, to nextcloud config.php
 
 ### Advanced Options
 
