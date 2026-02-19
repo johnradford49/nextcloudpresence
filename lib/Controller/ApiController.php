@@ -1,163 +1,52 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OCA\NextcloudPresence\Controller;
 
-use OCA\NextcloudPresence\Service\HomeAssistantService;
-use OCP\AppFramework\Http;
+use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\OCSController;
-use OCP\IAppConfig;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
+use OCP\IConfig;
+use OCP\Http\Client\IClientService;
 
-/**
- * @psalm-suppress UnusedClass
- */
-class ApiController extends OCSController {
+class ApiController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private HomeAssistantService $haService,
-		private IAppConfig $appConfig,
-		private IGroupManager $groupManager,
-		private IUserSession $userSession,
+		private IConfig $config,
+		private IClientService $clientService,
+		private \OCA\NextcloudPresence\Service\HAService $haService,
 	) {
 		parent::__construct($appName, $request);
 	}
 
-	/**
-	 * Check if the current user is an administrator
-	 *
-	 * @return bool True if the user is an admin, false otherwise (including when no user is logged in)
-	 */
-	private function isUserAdmin(): bool {
-		$user = $this->userSession->getUser();
-		return $user !== null && $this->groupManager->isAdmin($user->getUID());
-	}
-
-	/**
-	 * Get person presence data from Home Assistant
-	 *
-	 * @return DataResponse<Http::STATUS_OK, list<array{entity_id: string, name: string, state: string, last_changed: string|null}>, array{}>|DataResponse<Http::STATUS_INTERNAL_SERVER_ERROR, array{error: string}, array{}>
-	 *
-	 * 200: Presence data returned
-	 * 500: Error occurred
-	 */
 	#[NoAdminRequired]
-	#[ApiRoute(verb: 'GET', url: '/presence')]
-	public function getPresence(): DataResponse {
-		$result = $this->haService->getPersonPresence();
-
-		if (!$result['success']) {
-			return new DataResponse(
-				['error' => $result['error'] ?? 'Unknown error'],
-				Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+	#[ApiRoute(verb: 'POST', url: '/syncTables')]
+	public function syncTables(): DataResponse {
+		$tableId = (int)$this->config->getAppValue($this->appName, 'tables_table_id', '0');
+		if ($tableId <= 0) {
+			return new DataResponse(['error' => 'tables_table_id not configured'], 400);
 		}
 
-		return new DataResponse($result['data'] ?? []);
-	}
+		$persons = $this->haService->getPersonPresence(); // existing source of truth
 
-	/**
-	 * Test Home Assistant connection
-	 *
-	 * @param string $url Home Assistant URL to test
-	 * @param string $token Home Assistant token to test
-	 * @param int $connection_timeout Connection timeout in seconds (optional, defaults to 10)
-	 * @param bool $verify_ssl Whether to verify SSL certificates (optional, defaults to true)
-	 * @return DataResponse<Http::STATUS_OK, array{success: bool, message: string}, array{}>
-	 *
-	 * 200: Test result
-	 */
-	#[NoAdminRequired]
-	#[NoCSRFRequired]
-	#[ApiRoute(verb: 'POST', url: '/test-connection')]
-	public function testConnection(
-		string $url = '',
-		string $token = '',
-		int $connection_timeout = 10,
-		bool $verify_ssl = true,
-	): DataResponse {
-		// Validate connection timeout (minimum 5 seconds, maximum 60 seconds)
-		if ($connection_timeout < 5) {
-			$connection_timeout = 5;
-		} elseif ($connection_timeout > 60) {
-			$connection_timeout = 60;
-		}
+		$client = $this->clientService->newClient();
+		$base = rtrim($this->request->getServerProtocol() ? '' : '', ''); // not used; see note below
 
-		$result = $this->haService->testConnection($url, $token, $connection_timeout, $verify_ssl);
-		return new DataResponse($result);
-	}
+		// IMPORTANT NOTE:
+		// From server-side PHP, you must call your own Nextcloud via an absolute URL.
+		// Build it from the request, e.g. https://your.host
+		$scheme = $this->request->getServerProtocol() === 'https' ? 'https' : 'http';
+		$host = $this->request->getServerHost();
+		$ncBase = $scheme . '://' . $host;
 
-	/**
-	 * Save Home Assistant settings
-	 *
-	 * @param string $url Home Assistant URL
-	 * @param string $token Home Assistant long-lived access token
-	 * @param int $polling_interval Polling interval in seconds
-	 * @param int $connection_timeout Connection timeout in seconds
-	 * @param bool $verify_ssl Whether to verify SSL certificates
-	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
-	 *
-	 * 200: Settings saved
-	 */
-	#[NoCSRFRequired]
-	#[ApiRoute(verb: 'POST', url: '/settings')]
-	public function saveSettings(
-		string $url,
-		string $token,
-		int $polling_interval = 30,
-		int $connection_timeout = 10,
-		bool $verify_ssl = true,
-	): DataResponse {
-
-		// Remove trailing slashes from URL
-		$url = rtrim($url, '/');
-
-		// Validate polling interval (minimum 10 seconds)
-		if ($polling_interval < 10) {
-			$polling_interval = 10;
-		}
-
-		// Validate connection timeout (minimum 5 seconds, maximum 60 seconds)
-		if ($connection_timeout < 5) {
-			$connection_timeout = 5;
-		} elseif ($connection_timeout > 60) {
-			$connection_timeout = 60;
-		}
-
-		$this->appConfig->setValueString('nextcloudpresence', 'ha_url', $url, lazy: true);
-		$this->appConfig->setValueString('nextcloudpresence', 'ha_token', $token, lazy: true, sensitive: true);
-		$this->appConfig->setValueString('nextcloudpresence', 'ha_polling_interval', (string)$polling_interval, lazy: true);
-		$this->appConfig->setValueString('nextcloudpresence', 'ha_connection_timeout', (string)$connection_timeout, lazy: true);
-		$this->appConfig->setValueString('nextcloudpresence', 'ha_verify_ssl', $verify_ssl ? '1' : '0', lazy: true);
-
-		return new DataResponse(['success' => true]);
-	}
-
-	/**
-	 * Get Home Assistant settings
-	 *
-	 * @return DataResponse<Http::STATUS_OK, array{url: string, token: string, polling_interval: string, connection_timeout: string, verify_ssl: bool}, array{}>
-	 *
-	 * 200: Settings returned
-	 */
-	#[NoCSRFRequired]
-	#[ApiRoute(verb: 'GET', url: '/settings')]
-	public function getSettings(): DataResponse {
-
+		// Because we’re doing option (2), we need to forward the logged-in user’s session.
+		// The simplest approach is: DON'T do server-to-server calls; instead do the Tables calls in the browser (see section B).
+		// If you insist on server-side, you need to authenticate as the current user, which is not trivial without an app password.
 		return new DataResponse([
-			'url' => $this->appConfig->getValueString('nextcloudpresence', 'ha_url', '', lazy: true),
-			'token' => $this->appConfig->getValueString('nextcloudpresence', 'ha_token', '', lazy: true),
-			'polling_interval' => $this->appConfig->getValueString('nextcloudpresence', 'ha_polling_interval', '30', lazy: true),
-			'connection_timeout' => $this->appConfig->getValueString('nextcloudpresence', 'ha_connection_timeout', '10', lazy: true),
-			'verify_ssl' => $this->appConfig->getValueString('nextcloudpresence', 'ha_verify_ssl', '1', lazy: true) === '1',
-		]);
+			'error' => 'Recommended approach for option (2): perform Tables API calls from the frontend using the user session. See section B.',
+			'persons' => $persons,
+		], 501);
 	}
 }
