@@ -4,7 +4,6 @@ import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcContent from '@nextcloud/vue/components/NcContent'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
-import NcButton from '@nextcloud/vue/components/NcButton'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
@@ -194,19 +193,17 @@ onUnmounted(() => {
 			<div :class="$style.header">
 				<h2>Person Presence</h2>
 				<div :class="$style.actions">
-					<NcButton v-if="!loading && configured && !error"
-						variant="secondary"
+					<button v-if="!loading && configured && !error"
 						:class="$style.actionButton"
 						@click="exportCsv">
 						Export CSV
-					</NcButton>
-					<NcButton v-if="!loading && configured && !error && tablesAvailable"
-						variant="secondary"
+					</button>
+					<button v-if="!loading && configured && !error && tablesAvailable"
 						:disabled="syncingToTables"
 						:class="$style.actionButton"
 						@click="syncToTables">
 						{{ syncingToTables ? 'Syncing…' : 'Sync to Tables' }}
-					</NcButton>
+					</button>
 				</div>
 			</div>
 
@@ -284,6 +281,26 @@ onUnmounted(() => {
 
 .actionButton {
 	white-space: nowrap;
+	display: inline-flex;
+	align-items: center;
+	padding: 6px 16px;
+	border: 2px solid var(--color-border-dark, #888);
+	border-radius: var(--border-radius-pill, 20px);
+	background-color: var(--color-main-background, #fff);
+	color: var(--color-main-text, #222);
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.1s ease-in-out;
+
+	&:hover:not(:disabled) {
+		background-color: var(--color-background-hover, #f0f0f0);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 }
 
 .loading {
