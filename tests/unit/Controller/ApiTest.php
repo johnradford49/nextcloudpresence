@@ -7,6 +7,7 @@ namespace Controller;
 use OCA\NextcloudPresence\AppInfo\Application;
 use OCA\NextcloudPresence\Controller\ApiController;
 use OCA\NextcloudPresence\Service\HomeAssistantService;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Http;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
@@ -21,6 +22,7 @@ final class ApiTest extends TestCase {
 		$appConfig = $this->createMock(IAppConfig::class);
 		$groupManager = $this->createMock(IGroupManager::class);
 		$userSession = $this->createMock(IUserSession::class);
+		$appManager = $this->createMock(IAppManager::class);
 
 		$haService->expects($this->once())
 			->method('testConnection')
@@ -34,6 +36,7 @@ final class ApiTest extends TestCase {
 			$appConfig,
 			$groupManager,
 			$userSession,
+			$appManager,
 		);
 
 		$response = $controller->testConnection('http://homeassistant.local:8123', 'token123', 10, true);
@@ -49,6 +52,7 @@ final class ApiTest extends TestCase {
 		$appConfig = $this->createMock(IAppConfig::class);
 		$groupManager = $this->createMock(IGroupManager::class);
 		$userSession = $this->createMock(IUserSession::class);
+		$appManager = $this->createMock(IAppManager::class);
 
 		$haService->expects($this->once())
 			->method('testConnection')
@@ -64,6 +68,7 @@ final class ApiTest extends TestCase {
 			$appConfig,
 			$groupManager,
 			$userSession,
+			$appManager,
 		);
 
 		$response = $controller->testConnection('http://192.168.107.168:8081', 'token123', 10, true);

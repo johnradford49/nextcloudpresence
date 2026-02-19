@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace OCA\NextcloudPresence\Controller;
 
 use OCA\NextcloudPresence\Service\HomeAssistantService;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IAppConfig;
@@ -27,6 +29,7 @@ class ApiController extends OCSController {
 		private IAppConfig $appConfig,
 		private IGroupManager $groupManager,
 		private IUserSession $userSession,
+		private IAppManager $appManager,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -158,6 +161,73 @@ class ApiController extends OCSController {
 			'polling_interval' => $this->appConfig->getValueString('nextcloudpresence', 'ha_polling_interval', '30', lazy: true),
 			'connection_timeout' => $this->appConfig->getValueString('nextcloudpresence', 'ha_connection_timeout', '10', lazy: true),
 			'verify_ssl' => $this->appConfig->getValueString('nextcloudpresence', 'ha_verify_ssl', '1', lazy: true) === '1',
+		]);
+	}
+
+	/**
+	 * Export person presence data as CSV
+	 *
+	 * @return DataDownloadResponse<Http::STATUS_OK, string, array{}>|DataResponse<Http::STATUS_INTERNAL_SERVER_ERROR, array{error: string}, array{}>
+	 *
+	 * 200: CSV file returned
+	 * 500: Error occurred
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	#[ApiRoute(verb: 'GET', url: '/presence/export')]
+	public function exportPresenceCsv(): DataDownloadResponse|DataResponse {
+		$result = $this->haService->getPersonPresence();
+
+		if (!$result['success']) {
+			return new DataResponse(
+				['error' => $result['error'] ?? 'Unknown error'],
+				Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}
+
+		$persons = $result['data'] ?? [];
+
+		$lines = ["Name,State,Entity ID,Last Changed"];
+		foreach ($persons as $person) {
+			$lines[] = implode(',', [
+				$this->escapeCsvField($person['name']),
+				$this->escapeCsvField($person['state']),
+				$this->escapeCsvField($person['entity_id']),
+				$this->escapeCsvField($person['last_changed'] ?? ''),
+			]);
+		}
+
+		$csv = implode("\n", $lines) . "\n";
+
+		return new DataDownloadResponse($csv, 'person-presence.csv', 'text/csv');
+	}
+
+	/**
+	 * Escape a value for use in a CSV field
+	 *
+	 * @param string $value The value to escape
+	 * @return string The escaped value, quoted if necessary
+	 */
+	private function escapeCsvField(string $value): string {
+		if (str_contains($value, ',') || str_contains($value, '"') || str_contains($value, "\n")) {
+			return '"' . str_replace('"', '""', $value) . '"';
+		}
+		return $value;
+	}
+
+	/**
+	 * Check whether the Nextcloud Tables app is available
+	 *
+	 * @return DataResponse<Http::STATUS_OK, array{available: bool}, array{}>
+	 *
+	 * 200: Tables availability status returned
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	#[ApiRoute(verb: 'GET', url: '/tables/status')]
+	public function getTablesStatus(): DataResponse {
+		return new DataResponse([
+			'available' => $this->appManager->isEnabledForAnyone('tables'),
 		]);
 	}
 }
