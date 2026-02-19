@@ -34,7 +34,7 @@ class ApiController extends OCSController {
 	/**
 	 * Check if the current user is an administrator
 	 *
-	 * @return bool True if the user is an admin, false otherwise
+	 * @return bool True if the user is an admin, false otherwise (including when no user is logged in)
 	 */
 	private function isUserAdmin(): bool {
 		$user = $this->userSession->getUser();
@@ -120,7 +120,7 @@ class ApiController extends OCSController {
 		// Check if the user is an admin
 		if (!$this->isUserAdmin()) {
 			return new DataResponse(
-				['error' => 'Only administrators can modify these settings'],
+				['error' => 'Only administrators can modify Home Assistant settings'],
 				Http::STATUS_FORBIDDEN
 			);
 		}
@@ -163,7 +163,7 @@ class ApiController extends OCSController {
 		// Check if the user is an admin
 		if (!$this->isUserAdmin()) {
 			return new DataResponse(
-				['error' => 'Only administrators can access these settings'],
+				['error' => 'Only administrators can access Home Assistant settings'],
 				Http::STATUS_FORBIDDEN
 			);
 		}
