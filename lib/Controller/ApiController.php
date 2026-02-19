@@ -1,52 +1,80 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OCA\NextcloudPresence\Controller;
 
+use OCA\NextcloudPresence\AppInfo\Application;
+use OCA\NextcloudPresence\Service\HomeAssistantService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\IAppConfig;
+use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IConfig;
-use OCP\Http\Client\IClientService;
+use OCP\IUserSession;
 
 class ApiController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private IConfig $config,
-		private IClientService $clientService,
-		private \OCA\NextcloudPresence\Service\HAService $haService,
+		private HomeAssistantService $haService,
+		private IAppConfig $appConfig,
+		private IGroupManager $groupManager,
+		private IUserSession $userSession,
 	) {
 		parent::__construct($appName, $request);
 	}
 
 	#[NoAdminRequired]
-	#[ApiRoute(verb: 'POST', url: '/syncTables')]
-	public function syncTables(): DataResponse {
-		$tableId = (int)$this->config->getAppValue($this->appName, 'tables_table_id', '0');
-		if ($tableId <= 0) {
-			return new DataResponse(['error' => 'tables_table_id not configured'], 400);
+	#[ApiRoute(verb: 'GET', url: '/api/v1/presence')]
+	public function getPresence(): DataResponse {
+		$result = $this->haService->getPersonPresence();
+		if (!$result['success']) {
+			return new DataResponse(['error' => $result['error'] ?? 'Unknown error'], 503);
 		}
+		return new DataResponse($result['data'] ?? []);
+	}
 
-		$persons = $this->haService->getPersonPresence(); // existing source of truth
-
-		$client = $this->clientService->newClient();
-		$base = rtrim($this->request->getServerProtocol() ? '' : '', ''); // not used; see note below
-
-		// IMPORTANT NOTE:
-		// From server-side PHP, you must call your own Nextcloud via an absolute URL.
-		// Build it from the request, e.g. https://your.host
-		$scheme = $this->request->getServerProtocol() === 'https' ? 'https' : 'http';
-		$host = $this->request->getServerHost();
-		$ncBase = $scheme . '://' . $host;
-
-		// Because we’re doing option (2), we need to forward the logged-in user’s session.
-		// The simplest approach is: DON'T do server-to-server calls; instead do the Tables calls in the browser (see section B).
-		// If you insist on server-side, you need to authenticate as the current user, which is not trivial without an app password.
+	#[ApiRoute(verb: 'GET', url: '/settings')]
+	public function getSettings(): DataResponse {
 		return new DataResponse([
-			'error' => 'Recommended approach for option (2): perform Tables API calls from the frontend using the user session. See section B.',
-			'persons' => $persons,
-		], 501);
+			'url' => $this->appConfig->getValueString(Application::APP_ID, 'ha_url', '', lazy: true),
+			'token' => $this->appConfig->getValueString(Application::APP_ID, 'ha_token', '', lazy: true),
+			'polling_interval' => $this->appConfig->getValueString(Application::APP_ID, 'ha_polling_interval', '30', lazy: true),
+			'connection_timeout' => $this->appConfig->getValueString(Application::APP_ID, 'ha_connection_timeout', '10', lazy: true),
+			'verify_ssl' => $this->appConfig->getValueString(Application::APP_ID, 'ha_verify_ssl', '1', lazy: true) === '1',
+			'tables_table_id' => $this->appConfig->getValueString(Application::APP_ID, 'tables_table_id', '0', lazy: true),
+		]);
+	}
+
+	#[ApiRoute(verb: 'POST', url: '/settings')]
+	public function saveSettings(
+		string $url = '',
+		string $token = '',
+		int $polling_interval = 30,
+		int $connection_timeout = 10,
+		bool $verify_ssl = true,
+		int $tables_table_id = 0,
+	): DataResponse {
+		$this->appConfig->setValueString(Application::APP_ID, 'ha_url', $url);
+		$this->appConfig->setValueString(Application::APP_ID, 'ha_token', $token);
+		$this->appConfig->setValueString(Application::APP_ID, 'ha_polling_interval', (string)max(10, $polling_interval));
+		$this->appConfig->setValueString(Application::APP_ID, 'ha_connection_timeout', (string)max(1, $connection_timeout));
+		$this->appConfig->setValueString(Application::APP_ID, 'ha_verify_ssl', $verify_ssl ? '1' : '0');
+		$this->appConfig->setValueString(Application::APP_ID, 'tables_table_id', (string)max(0, $tables_table_id));
+		return new DataResponse(['status' => 'ok']);
+	}
+
+	#[ApiRoute(verb: 'POST', url: '/test-connection')]
+	public function testConnection(
+		string $url = '',
+		string $token = '',
+		int $connection_timeout = 0,
+		bool $verify_ssl = true,
+	): DataResponse {
+		$result = $this->haService->testConnection($url, $token, $connection_timeout, $verify_ssl);
+		return new DataResponse($result);
 	}
 }

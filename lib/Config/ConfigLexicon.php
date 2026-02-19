@@ -52,6 +52,13 @@ class ConfigLexicon implements ILexicon {
 				definition: 'Whether to verify SSL certificates (1 for true, 0 for false)',
 				lazy: true,
 			),
+			new Entry(
+				key: 'tables_table_id',
+				type: ValueType::STRING,
+				defaultRaw: '0',
+				definition: 'Nextcloud Tables table ID for presence sync (0 = disabled)',
+				lazy: true,
+			),
 		];
 	}
 

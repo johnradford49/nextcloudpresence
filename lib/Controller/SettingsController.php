@@ -19,7 +19,7 @@ class SettingsController extends Controller {
 	public function index(): TemplateResponse {
 		return new TemplateResponse(
 			Application::APP_ID,
-			'settings/admin',
+			'admin',
 			[],
 			TemplateResponse::RENDER_AS_USER
 		);

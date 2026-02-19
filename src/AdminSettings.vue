@@ -13,6 +13,7 @@ const haToken = ref('')
 const pollingInterval = ref(30)
 const connectionTimeout = ref(10)
 const verifySSL = ref(true)
+const tablesTableId = ref(0)
 const testing = ref(false)
 const saving = ref(false)
 const testResult = ref<{ success: boolean; message: string } | null>(null)
@@ -23,9 +24,10 @@ const loadSettings = async () => {
 		const data = response.data.ocs?.data || response.data
 		haUrl.value = data.url || ''
 		haToken.value = data.token || ''
-		pollingInterval.value = parseInt(data.polling_interval) || 30
-		connectionTimeout.value = parseInt(data.connection_timeout) || 10
+		pollingInterval.value = parseInt(data.polling_interval, 10) || 30
+		connectionTimeout.value = parseInt(data.connection_timeout, 10) || 10
 		verifySSL.value = data.verify_ssl !== false
+		tablesTableId.value = parseInt(data.tables_table_id, 10) || 0
 	} catch (e) {
 		showError('Failed to load settings')
 	}
@@ -42,6 +44,7 @@ const saveSettings = async () => {
 			polling_interval: pollingInterval.value,
 			connection_timeout: connectionTimeout.value,
 			verify_ssl: verifySSL.value,
+			tables_table_id: tablesTableId.value,
 		})
 		showSuccess('Settings saved successfully')
 	} catch (e) {
@@ -146,6 +149,17 @@ onMounted(() => {
 				<p id="ssl-hint" class="settings-hint ssl-hint">
 					Disable only if using self-signed certificates
 				</p>
+			</div>
+
+			<div class="advanced-settings">
+				<h3>Nextcloud Tables Integration</h3>
+
+				<NcTextField
+					v-model="tablesTableId"
+					label="Tables Table ID"
+					type="number"
+					placeholder="0"
+					:helper-text="'ID of the Nextcloud Tables table to sync presence data into (0 = disabled)'" />
 			</div>
 
 			<div class="button-group">
