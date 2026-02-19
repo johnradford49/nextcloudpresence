@@ -165,11 +165,11 @@ const formatDate = (dateString: string | null): string => {
 const getStateClass = (state: string): string => {
 	switch (state.toLowerCase()) {
 	case 'home':
-		return 'state-home'
+		return 'stateHome'
 	case 'away':
-		return 'state-away'
+		return 'stateAway'
 	default:
-		return 'state-other'
+		return 'stateOther'
 	}
 }
 
@@ -195,13 +195,13 @@ onUnmounted(() => {
 				<h2>Person Presence</h2>
 				<div :class="$style.actions">
 					<NcButton v-if="!loading && configured && !error"
-						type="secondary"
+						variant="secondary"
 						:class="$style.actionButton"
 						@click="exportCsv">
 						Export CSV
 					</NcButton>
 					<NcButton v-if="!loading && configured && !error && tablesAvailable"
-						type="secondary"
+						variant="secondary"
 						:disabled="syncingToTables"
 						:class="$style.actionButton"
 						@click="syncToTables">
@@ -214,7 +214,7 @@ onUnmounted(() => {
 
 			<NcEmptyContent v-else-if="!configured"
 				:class="$style.empty"
-				title="Home Assistant Not Configured"
+				name="Home Assistant Not Configured"
 				description="Please configure your Home Assistant connection in the admin settings.">
 				<template #icon>
 					<span>⚙️</span>
@@ -223,7 +223,7 @@ onUnmounted(() => {
 
 			<NcEmptyContent v-else-if="error"
 				:class="$style.empty"
-				:title="error"
+				:name="error"
 				description="Please check your Home Assistant connection settings.">
 				<template #icon>
 					<span>⚠️</span>
@@ -232,7 +232,7 @@ onUnmounted(() => {
 
 			<div v-else-if="persons.length === 0" :class="$style.empty">
 				<NcEmptyContent
-					title="No People Found"
+					name="No People Found"
 					description="No person entities found in Home Assistant.">
 					<template #icon>
 						<span>👤</span>
