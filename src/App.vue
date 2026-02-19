@@ -24,7 +24,7 @@ const fetchPresence = async () => {
 	error.value = null
 
 	try {
-		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/presence'))
+		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/api/v1/presence'))
 		const data = response.data.ocs?.data || response.data
 		persons.value = data
 		configured.value = true
