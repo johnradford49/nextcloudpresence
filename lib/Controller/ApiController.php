@@ -103,12 +103,11 @@ class ApiController extends OCSController {
 	 * @param int $polling_interval Polling interval in seconds
 	 * @param int $connection_timeout Connection timeout in seconds
 	 * @param bool $verify_ssl Whether to verify SSL certificates
-	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>|DataResponse<Http::STATUS_FORBIDDEN, array{error: string}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Settings saved
-	 * 403: User is not an admin
 	 */
-	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	#[ApiRoute(verb: 'POST', url: '/settings')]
 	public function saveSettings(
 		string $url,
@@ -117,13 +116,6 @@ class ApiController extends OCSController {
 		int $connection_timeout = 10,
 		bool $verify_ssl = true,
 	): DataResponse {
-		// Check if the user is an admin
-		if (!$this->isUserAdmin()) {
-			return new DataResponse(
-				['error' => 'Only administrators can modify Home Assistant settings'],
-				Http::STATUS_FORBIDDEN
-			);
-		}
 
 		// Remove trailing slashes from URL
 		$url = rtrim($url, '/');
@@ -152,21 +144,13 @@ class ApiController extends OCSController {
 	/**
 	 * Get Home Assistant settings
 	 *
-	 * @return DataResponse<Http::STATUS_OK, array{url: string, token: string, polling_interval: string, connection_timeout: string, verify_ssl: bool}, array{}>|DataResponse<Http::STATUS_FORBIDDEN, array{error: string}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array{url: string, token: string, polling_interval: string, connection_timeout: string, verify_ssl: bool}, array{}>
 	 *
 	 * 200: Settings returned
-	 * 403: User is not an admin
 	 */
-	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	#[ApiRoute(verb: 'GET', url: '/settings')]
 	public function getSettings(): DataResponse {
-		// Check if the user is an admin
-		if (!$this->isUserAdmin()) {
-			return new DataResponse(
-				['error' => 'Only administrators can access Home Assistant settings'],
-				Http::STATUS_FORBIDDEN
-			);
-		}
 
 		return new DataResponse([
 			'url' => $this->config->getAppValue('nextcloudpresence', 'ha_url', ''),
