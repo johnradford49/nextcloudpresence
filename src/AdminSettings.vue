@@ -16,11 +16,7 @@ const verifySSL = ref(true)
 const testing = ref(false)
 const saving = ref(false)
 const testResult = ref<{ success: boolean; message: string } | null>(null)
-setValueString(
-    'haUrl',
-    'haToken',
-    sensitive: true
-);
+
 const loadSettings = async () => {
 	try {
 		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/settings'))
