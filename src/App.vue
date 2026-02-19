@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcContent from '@nextcloud/vue/components/NcContent'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
@@ -37,7 +37,7 @@ const fetchPresence = async () => {
 	error.value = null
 
 	try {
-		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/api/v1/presence'))
+		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/presence'))
 		const data = response.data.ocs?.data || response.data
 		persons.value = data
 		configured.value = true
@@ -58,7 +58,7 @@ const fetchPresence = async () => {
 
 const checkTablesAvailability = async () => {
 	try {
-		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/api/v1/tables/status'))
+		const response = await axios.get(generateUrl('/ocs/v2.php/apps/nextcloudpresence/tables/status'))
 		tablesAvailable.value = response.data.ocs?.data?.available ?? false
 	} catch {
 		tablesAvailable.value = false
@@ -66,7 +66,7 @@ const checkTablesAvailability = async () => {
 }
 
 const exportCsv = () => {
-	window.location.href = generateUrl('/ocs/v2.php/apps/nextcloudpresence/api/v1/presence/export')
+	window.location.href = generateUrl('/ocs/v2.php/apps/nextcloudpresence/presence/export')
 }
 
 const syncToTables = async () => {
@@ -173,9 +173,18 @@ const getStateClass = (state: string): string => {
 	}
 }
 
+const refreshInterval = ref<ReturnType<typeof setInterval> | null>(null)
+
 onMounted(() => {
 	fetchPresence()
 	checkTablesAvailability()
+	refreshInterval.value = setInterval(fetchPresence, 30000)
+})
+
+onUnmounted(() => {
+	if (refreshInterval.value !== null) {
+		clearInterval(refreshInterval.value)
+	}
 })
 </script>
 
