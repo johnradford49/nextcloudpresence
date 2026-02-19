@@ -194,13 +194,14 @@ onUnmounted(() => {
 			<div :class="$style.header">
 				<h2>Person Presence</h2>
 				<div :class="$style.actions">
-					<NcButton>
+					<NcButton 
+						v-if="persons.length != 0"
 						type="secondary"
 						:class="$style.actionButton"
 						@click="exportCsv">
 						Export CSV
 					</NcButton>
-					<NcButton v-if="persons.length >= 0 && tablesAvailable"
+					<NcButton v-if="persons.length != 0 && tablesAvailable"
 						type="secondary"
 						:disabled="syncingToTables"
 						:class="$style.actionButton"
