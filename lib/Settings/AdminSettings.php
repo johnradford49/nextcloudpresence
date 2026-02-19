@@ -25,7 +25,7 @@ class AdminSettings implements ISettings {
 	}
 
 	public function getSection(): string {
-		return 'hapresence';
+		return 'additional';
 	}
 
 	public function getPriority(): int {
