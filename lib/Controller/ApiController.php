@@ -47,7 +47,7 @@ class ApiController extends OCSController {
 	/**
 	 * Get person presence data from Home Assistant
 	 *
-	 * @return DataResponse<Http::STATUS_OK, list<array{entity_id: string, name: string, state: string, last_changed: string|null}>, array{}>|DataResponse<Http::STATUS_INTERNAL_SERVER_ERROR, array{error: string}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, list<array{name: string, state: string, last_changed: string|null}>, array{}>|DataResponse<Http::STATUS_INTERNAL_SERVER_ERROR, array{error: string}, array{}>
 	 *
 	 * 200: Presence data returned
 	 * 500: Error occurred
@@ -187,12 +187,11 @@ class ApiController extends OCSController {
 
 		$persons = $result['data'] ?? [];
 
-		$lines = ["Name,State,Entity ID,Last Changed"];
+		$lines = ["Name,State,Last Changed"];
 		foreach ($persons as $person) {
 			$lines[] = implode(',', [
 				$this->escapeCsvField($person['name']),
 				$this->escapeCsvField($person['state']),
-				$this->escapeCsvField($person['entity_id']),
 				$this->escapeCsvField($person['last_changed'] ?? ''),
 			]);
 		}

@@ -265,7 +265,6 @@ class HomeAssistantService {
 			foreach ($allStates as $state) {
 				if (isset($state['entity_id']) && str_starts_with($state['entity_id'], 'person.')) {
 					$persons[] = [
-						'entity_id' => $state['entity_id'],
 						'name' => $state['attributes']['friendly_name'] ?? $state['entity_id'],
 						'state' => $state['state'] ?? 'unknown',
 						'last_changed' => $state['last_changed'] ?? null,
