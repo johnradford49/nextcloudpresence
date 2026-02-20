@@ -7,7 +7,8 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
-
+import NcActionButton from '@nextcloud/vue'
+	
 interface Person {
 	entity_id: string
 	name: string
@@ -193,17 +194,15 @@ onUnmounted(() => {
 			<div :class="$style.header">
 				<h2>Person Presence</h2>
 				<div :class="$style.actions">
-					<button v-if="!loading && configured && !error"
-						:class="$style.actionButton"
+					<NcActionButton v-if="!loading && configured && !error"
 						@click="exportCsv">
 						Export CSV
-					</button>
-					<button v-if="!loading && configured && !error && tablesAvailable"
+					</NcActionButton>
+					<NcActionButton v-if="!loading && configured && !error && tablesAvailable"
 						:disabled="syncingToTables"
-						:class="$style.actionButton"
 						@click="syncToTables">
 						{{ syncingToTables ? 'Syncing…' : 'Sync to Tables' }}
-					</button>
+					</NcActionButton>
 				</div>
 			</div>
 
