@@ -236,7 +236,7 @@ onUnmounted(() => {
 				</NcEmptyContent>
 			</div>
 
-			<div v-else :class="$style.personList">
+			<div v-else :class="$style.personCard">
 				<div v-for="person in persons" :key="person.entity_id" :class="$style.personCard">
 					<div :class="[$style.personState, $style[getStateClass(person.state)]]">
 						{{ person.state }}
