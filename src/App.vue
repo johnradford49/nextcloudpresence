@@ -10,7 +10,6 @@ import { showSuccess, showError } from '@nextcloud/dialogs'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 
 interface Person {
-	entity_id: string
 	name: string
 	state: string
 	last_changed: string | null
@@ -98,14 +97,13 @@ const syncToTables = async () => {
 			return
 		}
 
-		// Get or create the required columns: Name, State, Entity ID, Last Changed
+		// Get or create the required columns: Name, State, Last Changed
 		const columnsResp = await axios.get(`${tablesBase}/tables/${tableId}/columns`)
 		const existingColumns: TablesColumn[] = columnsResp.data.ocs?.data ?? []
 
 		const requiredColumns = [
 			{ key: 'name', title: 'Name' },
 			{ key: 'state', title: 'State' },
-			{ key: 'entity_id', title: 'Entity ID' },
 			{ key: 'last_changed', title: 'Last Changed' },
 		]
 
@@ -142,7 +140,6 @@ const syncToTables = async () => {
 			const rowData = JSON.stringify([
 				{ columnId: columnMap.name, value: person.name },
 				{ columnId: columnMap.state, value: person.state },
-				{ columnId: columnMap.entity_id, value: person.entity_id },
 				{ columnId: columnMap.last_changed, value: person.last_changed ?? '' },
 			])
 			await axios.post(`${tablesBase}/rows`, { tableId, data: rowData })
@@ -237,7 +234,7 @@ onUnmounted(() => {
 			</div>
 
 			<div v-else :class="$style.personList">
-				<div v-for="person in persons" :key="person.entity_id" :class="$style.personCard">
+				<div v-for="(person, index) in persons" :key="index" :class="$style.personCard">
 					<div :class="[$style.personState, $style[getStateClass(person.state)]]">
 						{{ person.state }}
 					</div>
