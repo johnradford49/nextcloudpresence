@@ -6,22 +6,11 @@ namespace OCA\NextcloudPresence\Settings;
 
 use OCA\NextcloudPresence\AppInfo\Application;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\IAppConfig;
 use OCP\Settings\ISettings;
 
 class AdminSettings implements ISettings {
-	public function __construct(
-		private IAppConfig $appConfig,
-	) {
-	}
-
 	public function getForm(): TemplateResponse {
-		$parameters = [
-			'ha_url' => $this->appConfig->getValueString(Application::APP_ID, 'ha_url', '', lazy: true),
-			'ha_token' => $this->appConfig->getValueString(Application::APP_ID, 'ha_token', '', lazy: true),
-		];
-
-		return new TemplateResponse(Application::APP_ID, 'admin', $parameters);
+		return new TemplateResponse(Application::APP_ID, 'admin', []);
 	}
 
 	public function getSection(): string {
