@@ -74,11 +74,11 @@ const syncToTables = async () => {
 
 	try {
 		const tableTitle = 'Person Presence'
-		const tablesBase = generateUrl('/ocs/v2.php/apps/tables/api/1')
+		const tablesBase = generateUrl('/apps/tables/api/1')
 
 		// Find or create the table
 		const tablesResp = await axios.get(`${tablesBase}/tables`)
-		const allTables: Array<{ id: number; title: string }> = tablesResp.data.ocs?.data ?? []
+		const allTables: Array<{ id: number; title: string }> = tablesResp.data ?? []
 		let tableId: number | null = null
 		for (const t of allTables) {
 			if (t.title === tableTitle) {
@@ -89,7 +89,7 @@ const syncToTables = async () => {
 
 		if (tableId === null) {
 			const createResp = await axios.post(`${tablesBase}/tables`, { title: tableTitle, emoji: '👤' })
-			tableId = createResp.data.ocs?.data?.id
+			tableId = createResp.data?.id
 		}
 
 		if (!tableId) {
@@ -99,7 +99,7 @@ const syncToTables = async () => {
 
 		// Get or create the required columns: Name, State, Last Changed
 		const columnsResp = await axios.get(`${tablesBase}/tables/${tableId}/columns`)
-		const existingColumns: TablesColumn[] = columnsResp.data.ocs?.data ?? []
+		const existingColumns: TablesColumn[] = columnsResp.data ?? []
 
 		const requiredColumns = [
 			{ key: 'name', title: 'Name' },
@@ -124,25 +124,25 @@ const syncToTables = async () => {
 					title: req.title,
 					mandatory: false,
 				})
-				columnMap[req.key] = colResp.data.ocs?.data?.id
+				columnMap[req.key] = colResp.data?.id
 			}
 		}
 
 		// Delete all existing rows
 		const rowsResp = await axios.get(`${tablesBase}/tables/${tableId}/rows`)
-		const existingRows: TablesRow[] = rowsResp.data.ocs?.data ?? []
+		const existingRows: TablesRow[] = rowsResp.data ?? []
 		for (const row of existingRows) {
 			await axios.delete(`${tablesBase}/rows/${row.id}`)
 		}
 
 		// Insert current presence data
 		for (const person of persons.value) {
-			const rowData = JSON.stringify([
-				{ columnId: columnMap.name, value: person.name },
-				{ columnId: columnMap.state, value: person.state },
-				{ columnId: columnMap.last_changed, value: person.last_changed ?? '' },
-			])
-			await axios.post(`${tablesBase}/rows`, { tableId, data: rowData })
+			const rowData = JSON.stringify({
+				[columnMap.name]: person.name,
+				[columnMap.state]: person.state,
+				[columnMap.last_changed]: person.last_changed ?? '',
+			})
+			await axios.post(`${tablesBase}/tables/${tableId}/rows`, { data: rowData })
 		}
 
 		showSuccess(`Synced ${persons.value.length} person(s) to the "${tableTitle}" table in Nextcloud Tables.`)
