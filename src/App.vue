@@ -7,8 +7,8 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
-import NcActionButton from '@nextcloud/vue'
-	
+import NcActionButton from '@nextcloud/vue/components/NcActionButton'
+
 interface Person {
 	entity_id: string
 	name: string
